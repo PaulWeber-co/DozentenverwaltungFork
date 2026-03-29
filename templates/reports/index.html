@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Reports{% endblock %}
+{% block page_title %}Reports{% endblock %}
+{% block content %}
+
+<div class="search-hero mb-4">
+    <h2><i class="fas fa-chart-bar me-2"></i>Reports & Auswertungen</h2>
+    <p>Erstellen Sie tabellarische Reports und exportieren Sie diese als CSV, JSON oder PDF.</p>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <a href="{{ url_for('report_anzeigen', report_id=1) }}" style="text-decoration:none">
+            <div class="report-card">
+                <div class="report-icon"><i class="fas fa-check-circle"></i></div>
+                <h6>Report 1: Dozenten mit Provadis-Erfahrung</h6>
+                <p>Liste aller Dozenten und aller Vorlesungen, die der Dozierende an der Provadis Hochschule schon gehalten hat (inkl. Bachelor, Master).</p>
+                <span class="btn btn-sm btn-provadis"><i class="fas fa-arrow-right me-1"></i>Report anzeigen</span>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-6">
+        <a href="{{ url_for('report_anzeigen', report_id=2) }}" style="text-decoration:none">
+            <div class="report-card">
+                <div class="report-icon"><i class="fas fa-user-clock"></i></div>
+                <h6>Report 2: Dozenten ohne Provadis-Erfahrung</h6>
+                <p>Liste aller Dozierenden und Vorlesungen, die noch nie an der Provadis Hochschule gehalten wurden (inkl. Bachelor, Master).</p>
+                <span class="btn btn-sm btn-provadis"><i class="fas fa-arrow-right me-1"></i>Report anzeigen</span>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-6">
+        <a href="{{ url_for('report_anzeigen', report_id=3) }}" style="text-decoration:none">
+            <div class="report-card">
+                <div class="report-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <h6>Report 3: Vorlesungen ohne Dozent</h6>
+                <p>Liste aller Vorlesungen (inkl. Master, Bachelor), für die kein Dozent bekannt ist.</p>
+                <span class="btn btn-sm btn-provadis"><i class="fas fa-arrow-right me-1"></i>Report anzeigen</span>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-6">
+        <a href="{{ url_for('report_anzeigen', report_id=4) }}" style="text-decoration:none">
+            <div class="report-card">
+                <div class="report-icon"><i class="fas fa-university"></i></div>
+                <h6>Report 4: Vorlesungen nur mit externer Erfahrung</h6>
+                <p>Liste aller Vorlesungen, für die es nur Dozenten gibt, die diese an anderen (nicht Provadis) Hochschulen gehalten haben.</p>
+                <span class="btn btn-sm btn-provadis"><i class="fas fa-arrow-right me-1"></i>Report anzeigen</span>
+            </div>
+        </a>
+    </div>
+</div>
+{% endblock %}
+

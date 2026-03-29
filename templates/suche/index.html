@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Suche{% endblock %}
+{% block page_title %}Suche{% endblock %}
+{% block content %}
+
+<div class="search-hero">
+    <h2><i class="fas fa-search me-2"></i>Dozenten & Vorlesungen suchen</h2>
+    <p>Finden Sie den optimalen Dozenten für eine Vorlesung oder sehen Sie alle Vorlesungen eines Dozenten ein.</p>
+</div>
+
+<div class="row g-4 justify-content-center">
+    <div class="col-md-5">
+        <a href="{{ url_for('suche_dozent_fuer_vorlesung') }}" style="text-decoration:none">
+            <div class="search-card">
+                <i class="fas fa-chalkboard-teacher"></i>
+                <h5>Dozent für Vorlesung finden</h5>
+                <p>Wählen Sie eine Vorlesung aus und finden Sie den best geeigneten Dozenten. Filtern Sie nach Verfügbarkeit, Erfahrung und Niveau.</p>
+                <span class="btn btn-provadis mt-2">
+                    <i class="fas fa-arrow-right me-1"></i>Starten
+                </span>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-5">
+        <a href="{{ url_for('suche_vorlesungen_fuer_dozent') }}" style="text-decoration:none">
+            <div class="search-card">
+                <i class="fas fa-book-open"></i>
+                <h5>Vorlesungen für Dozent anzeigen</h5>
+                <p>Wählen Sie einen Dozenten aus und sehen Sie alle Vorlesungen mit den dazugehörigen Informationen ein.</p>
+                <span class="btn btn-outline-provadis mt-2">
+                    <i class="fas fa-arrow-right me-1"></i>Starten
+                </span>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- Typical Workflow -->
+<div class="content-card mt-5">
+    <div class="card-header">
+        <span><i class="fas fa-lightbulb me-2"></i>Typische Abläufe</span>
+    </div>
+    <div class="card-body">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <h6 style="color:#0c2f6f"><i class="fas fa-search-plus me-1"></i> Dozent für Vorlesung suchen</h6>
+                <ol class="text-muted" style="font-size:0.875rem">
+                    <li>Vorlesung auswählen</li>
+                    <li>Niveau wählen: Bachelor oder Master (Standard: Bachelor)</li>
+                    <li>Verfügbarkeit: Sofort, 4 Wochen oder länger (Standard: Sofort)</li>
+                    <li>Erfahrung: Provadis, andere HS oder keine (Standard: Provadis)</li>
+                </ol>
+            </div>
+            <div class="col-md-6">
+                <h6 style="color:#0c2f6f"><i class="fas fa-user-check me-1"></i> Dozent auswählen</h6>
+                <ol class="text-muted" style="font-size:0.875rem">
+                    <li>Dozent auswählen oder suchen</li>
+                    <li>Alle Vorlesungen mit Informationen anzeigen</li>
+                    <li>Ergebnisse filtern: z.B. nur Bachelor, nur an der Provadis gehalten</li>
+                    <li>Alle Filterkombinationen möglich</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

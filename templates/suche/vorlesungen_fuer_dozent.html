@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Vorlesungen für Dozent{% endblock %}
+{% block page_title %}Vorlesungen für Dozent{% endblock %}
+{% block content %}
+
+<!-- Search Form -->
+<div class="content-card mb-4">
+    <div class="card-header">
+        <span><i class="fas fa-search me-2"></i>Suchkriterien</span>
+    </div>
+    <div class="card-body">
+        <form method="GET">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label">Dozent <span class="text-danger">*</span></label>
+                    {{ form.dozent_id(class="form-select auto-submit", id="dozent_id") }}
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Niveau</label>
+                    <select name="niveau" class="form-select">
+                        <option value="">– Alle –</option>
+                        <option value="Bachelor" {{ 'selected' if form.niveau.data == 'Bachelor' }}>Bachelor</option>
+                        <option value="Master" {{ 'selected' if form.niveau.data == 'Master' }}>Master</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Verfügbarkeit</label>
+                    <select name="qualifikation" class="form-select">
+                        <option value="">– Alle –</option>
+                        <option value="S" {{ 'selected' if form.qualifikation.data == 'S' }}>Sofort</option>
+                        <option value="4" {{ 'selected' if form.qualifikation.data == '4' }}>Innerhalb 4 Wochen</option>
+                        <option value="M" {{ 'selected' if form.qualifikation.data == 'M' }}>Mehr als 4 Wochen</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Erfahrung</label>
+                    <select name="erfahrung" class="form-select">
+                        <option value="">– Alle –</option>
+                        <option value="P" {{ 'selected' if form.erfahrung.data == 'P' }}>Provadis</option>
+                        <option value="A" {{ 'selected' if form.erfahrung.data == 'A' }}>Andere HS</option>
+                        <option value="N" {{ 'selected' if form.erfahrung.data == 'N' }}>Noch nie</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-provadis w-100">
+                        <i class="fas fa-search me-1"></i>Suchen
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Results -->
+{% if ergebnisse is not none %}
+<div class="content-card">
+    <div class="card-header">
+        <span>
+            <i class="fas fa-list me-2"></i>
+            {% if dozent %}
+                Vorlesungen von {{ dozent.full_name }}
+            {% else %}
+                Ergebnisse
+            {% endif %}
+            – {{ ergebnisse|length }} Vorlesung{{ 'en' if ergebnisse|length != 1 }}
+        </span>
+    </div>
+    <div class="card-body p-0">
+        {% if ergebnisse %}
+        <div class="table-responsive">
+            <table class="table table-provadis mb-0">
+                <thead>
+                    <tr>
+                        <th>Vorlesung</th>
+                        <th>Niveau</th>
+                        <th>Status</th>
+                        <th>Semester</th>
+                        <th>Qualifikation</th>
+                        <th>Erfahrung</th>
+                        <th>Niveau-Präf.</th>
+                        <th>Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for z in ergebnisse %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('vorlesung_detail', id=z.vorlesung.id) }}" style="font-weight:500;color:#0c2f6f">
+                                {{ z.vorlesung.name }}
+                            </a>
+                        </td>
+                        <td><span class="badge {{ z.vorlesung.niveau_badge }}">{{ z.vorlesung.niveau }}</span></td>
+                        <td><span class="badge {{ z.vorlesung.status_badge }}">{{ z.vorlesung.status|capitalize }}</span></td>
+                        <td style="font-size:0.85rem">{{ z.vorlesung.semester or '–' }}</td>
+                        <td><span class="badge {{ z.qualifikation_badge }}">{{ z.qualifikation_display }}</span></td>
+                        <td><span class="badge {{ z.erfahrung_badge }}">{{ z.erfahrung_display }}</span></td>
+                        <td>
+                            {% if z.niveau_praeferenz %}
+                                <span class="badge bg-warning text-dark">Nur {{ 'Master' if z.niveau_praeferenz == 'M' else 'Bachelor' }}</span>
+                            {% else %}
+                                <span class="text-muted">–</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('vorlesung_detail', id=z.vorlesung.id) }}" class="btn btn-sm btn-outline-provadis">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state py-4">
+            <i class="fas fa-search"></i>
+            <h5>Keine passenden Vorlesungen gefunden</h5>
+            <p>Versuchen Sie, die Filterkriterien zu lockern.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+

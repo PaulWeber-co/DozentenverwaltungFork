@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}2FA Verifizierung{% endblock %}
+{% block body %}
+<div class="login-page">
+    <div class="login-card">
+        <div class="logo-area">
+            <i class="fas fa-shield-alt" style="font-size:3rem;color:#0c2f6f"></i>
+            <h4>Zwei-Faktor-Authentifizierung</h4>
+            <p>Geben Sie den Code aus Ihrer Authenticator-App ein</p>
+        </div>
+        <form method="POST" novalidate>
+            {{ form.hidden_tag() }}
+            <div class="mb-3">
+                {{ form.token(class="form-control form-control-lg text-center", placeholder="000000",
+                   maxlength=6, autofocus=true, autocomplete="one-time-code", style="letter-spacing:0.5em;font-size:1.5rem") }}
+                {% for error in form.token.errors %}
+                    <div class="text-danger mt-1" style="font-size:0.85rem">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <button type="submit" class="btn btn-provadis w-100 py-2">
+                <i class="fas fa-check me-1"></i> Verifizieren
+            </button>
+            <a href="{{ url_for('login') }}" class="btn btn-link w-100 mt-2" style="font-size:0.85rem">
+                Zurück zur Anmeldung
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+

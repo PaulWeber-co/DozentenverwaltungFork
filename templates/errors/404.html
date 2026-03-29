@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Seite nicht gefunden{% endblock %}
+{% block page_title %}Fehler 404{% endblock %}
+{% block content %}
+<div class="text-center py-5">
+    <i class="fas fa-map-signs" style="font-size:4rem;color:#ccc"></i>
+    <h3 class="mt-3" style="color:#0c2f6f">Seite nicht gefunden</h3>
+    <p class="text-muted">Die angeforderte Seite existiert nicht oder wurde verschoben.</p>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-provadis mt-2">
+        <i class="fas fa-home me-1"></i>Zum Dashboard
+    </a>
+</div>
+{% endblock %}
+

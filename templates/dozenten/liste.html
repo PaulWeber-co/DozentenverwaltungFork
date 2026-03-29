@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Dozenten{% endblock %}
+{% block page_title %}Dozenten{% endblock %}
+{% block content %}
+
+<!-- Filter Bar -->
+<div class="filter-bar">
+    <form method="GET" class="row g-2 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label">Suche</label>
+            <input type="text" name="q" class="form-control" placeholder="Name oder E-Mail…" value="{{ suche }}">
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-select auto-submit">
+                <option value="">Alle</option>
+                <option value="intern" {{ 'selected' if status_filter == 'intern' }}>Intern</option>
+                <option value="extern" {{ 'selected' if status_filter == 'extern' }}>Extern</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Präferenz</label>
+            <select name="praeferenz" class="form-select auto-submit">
+                <option value="">Alle</option>
+                <option value="A" {{ 'selected' if praeferenz_filter == 'A' }}>Alle (A)</option>
+                <option value="M" {{ 'selected' if praeferenz_filter == 'M' }}>Nur Master (M)</option>
+                <option value="B" {{ 'selected' if praeferenz_filter == 'B' }}>Nur Bachelor (B)</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-provadis w-100">
+                <i class="fas fa-filter me-1"></i>Filtern
+            </button>
+        </div>
+        <div class="col-md-3 text-end">
+            <a href="{{ url_for('dozent_neu') }}" class="btn btn-accent">
+                <i class="fas fa-plus me-1"></i>Neuer Dozent
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Results -->
+<div class="content-card">
+    <div class="card-header">
+        <span><i class="fas fa-chalkboard-teacher me-2"></i>{{ dozenten|length }} Dozent{{ 'en' if dozenten|length != 1 }}</span>
+        <div>
+            <input type="text" class="form-control form-control-sm" data-table-search="dozenten-table"
+                   placeholder="In Tabelle suchen…" style="width:200px">
+        </div>
+    </div>
+    <div class="card-body p-0">
+        {% if dozenten %}
+        <div class="table-responsive">
+            <table class="table table-provadis sortable-table mb-0" id="dozenten-table">
+                <thead>
+                    <tr>
+                        <th data-sort>Name</th>
+                        <th data-sort>Status</th>
+                        <th data-sort>E-Mail</th>
+                        <th data-sort>Telefon</th>
+                        <th data-sort>Präferenz</th>
+                        <th>Vorlesungen</th>
+                        <th style="width:100px">Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in dozenten %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('dozent_detail', id=d.id) }}" style="font-weight:500;color:#0c2f6f">
+                                {{ d.full_name }}
+                            </a>
+                        </td>
+                        <td>
+                            <span class="badge {{ 'bg-provadis' if d.status == 'intern' else 'bg-secondary' }}">
+                                {{ d.status_display }}
+                            </span>
+                        </td>
+                        <td style="font-size:0.85rem">{{ d.email }}</td>
+                        <td style="font-size:0.85rem">{{ d.telefon }}</td>
+                        <td><span class="badge bg-info">{{ d.praeferenz_display }}</span></td>
+                        <td><span class="badge bg-provadis">{{ d.vorlesungen|length }}</span></td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <a href="{{ url_for('dozent_bearbeiten', id=d.id) }}" class="btn btn-sm btn-outline-secondary"
+                                   title="Bearbeiten"><i class="fas fa-edit"></i></a>
+                                <a href="{{ url_for('dozent_detail', id=d.id) }}" class="btn btn-sm btn-outline-provadis"
+                                   title="Details"><i class="fas fa-eye"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-user-slash"></i>
+            <h5>Keine Dozenten gefunden</h5>
+            <p>Passen Sie die Filter an oder legen Sie einen neuen Dozenten an.</p>
+            <a href="{{ url_for('dozent_neu') }}" class="btn btn-provadis mt-3">
+                <i class="fas fa-plus me-1"></i>Dozent anlegen
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

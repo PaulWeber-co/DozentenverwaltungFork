@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}{{ report_title }}{% endblock %}
+{% block page_title %}{{ report_title }}{% endblock %}
+{% block content %}
+
+<!-- Header & Export -->
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+    <div>
+        <a href="{{ url_for('reports') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i>Alle Reports
+        </a>
+    </div>
+    <div class="export-group d-flex gap-2 no-print">
+        <a href="{{ url_for('export_report', report_id=report_id, fmt='csv') }}" class="btn btn-sm btn-outline-success">
+            <i class="fas fa-file-csv me-1"></i>CSV
+        </a>
+        <a href="{{ url_for('export_report', report_id=report_id, fmt='json') }}" class="btn btn-sm btn-outline-info" target="_blank">
+            <i class="fas fa-file-code me-1"></i>JSON
+        </a>
+        <a href="{{ url_for('export_report', report_id=report_id, fmt='pdf') }}" class="btn btn-sm btn-outline-danger">
+            <i class="fas fa-file-pdf me-1"></i>PDF
+        </a>
+        <button class="btn btn-sm btn-outline-secondary btn-print">
+            <i class="fas fa-print me-1"></i>Drucken
+        </button>
+    </div>
+</div>
+
+<!-- Report Table -->
+<div class="content-card">
+    <div class="card-header">
+        <span>
+            <i class="fas fa-table me-2"></i>{{ report_title }}
+            <span class="badge bg-provadis ms-2">{{ rows|length }} Einträge</span>
+        </span>
+        <div>
+            <input type="text" class="form-control form-control-sm no-print" data-table-search="report-table"
+                   placeholder="In Ergebnissen suchen…" style="width:200px">
+        </div>
+    </div>
+    <div class="card-body p-0">
+        {% if rows %}
+        <div class="table-responsive">
+            <table class="table table-provadis sortable-table mb-0" id="report-table">
+                <thead>
+                    <tr>
+                        <th style="width:40px">#</th>
+                        {% for h in headers %}
+                            <th data-sort>{{ h }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in rows %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        {% for k in keys %}
+                            <td>
+                                {% if k == 'niveau' %}
+                                    <span class="badge {{ 'bg-purple' if row[k] == 'Master' else 'bg-primary' }}">{{ row[k] }}</span>
+                                {% elif k == 'status' and row[k] in ['Intern', 'Extern'] %}
+                                    <span class="badge {{ 'bg-provadis' if row[k] == 'Intern' else 'bg-secondary' }}">{{ row[k] }}</span>
+                                {% elif k == 'qualifikation' %}
+                                    {% set qmap = {'Sofort': 'bg-success', '4 Wochen Vorlauf': 'bg-warning text-dark', 'Mehr als 4 Wochen': 'bg-danger'} %}
+                                    <span class="badge {{ qmap.get(row[k], 'bg-secondary') }}">{{ row[k] }}</span>
+                                {% elif k == 'erfahrung' %}
+                                    {% set emap = {'Provadis': 'bg-success', 'Andere Hochschule': 'bg-info', 'Keine': 'bg-secondary'} %}
+                                    <span class="badge {{ emap.get(row[k], 'bg-secondary') }}">{{ row[k] }}</span>
+                                {% else %}
+                                    {{ row[k] }}
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state py-4">
+            <i class="fas fa-inbox"></i>
+            <h5>Keine Daten vorhanden</h5>
+            <p>Für diesen Report gibt es aktuell keine Ergebnisse.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

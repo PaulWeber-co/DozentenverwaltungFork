@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}{{ titel }}{% endblock %}
+{% block page_title %}{{ titel }}{% endblock %}
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="content-card">
+            <div class="card-header">
+                <span><i class="fas fa-link me-2"></i>{{ titel }}</span>
+            </div>
+            <div class="card-body">
+                <form method="POST" novalidate>
+                    {{ form.hidden_tag() }}
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">{{ form.dozent_id.label.text }} <span class="text-danger">*</span></label>
+                            {{ form.dozent_id(class="form-select" + (" is-invalid" if form.dozent_id.errors else ""), id="dozent_id") }}
+                            {% for e in form.dozent_id.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">{{ form.vorlesung_id.label.text }} <span class="text-danger">*</span></label>
+                            {{ form.vorlesung_id(class="form-select" + (" is-invalid" if form.vorlesung_id.errors else "")) }}
+                            {% for e in form.vorlesung_id.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">{{ form.qualifikation.label.text }} <span class="text-danger">*</span></label>
+                            {{ form.qualifikation(class="form-select") }}
+                            <small class="text-muted">Wie schnell kann der Dozent einspringen?</small>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">{{ form.erfahrung.label.text }} <span class="text-danger">*</span></label>
+                            {{ form.erfahrung(class="form-select") }}
+                            <small class="text-muted">Bereits an einer Hochschule gehalten?</small>
+                        </div>
+
+                        <div class="col-md-4" id="niveau-praeferenz-group">
+                            <label class="form-label">{{ form.niveau_praeferenz.label.text }}</label>
+                            {{ form.niveau_praeferenz(class="form-select") }}
+                            <small class="text-muted">Nur relevant wenn Dozent-Präferenz "Alle" ist</small>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">{{ form.notizen.label.text }}</label>
+                            {{ form.notizen(class="form-control", rows=2, placeholder="Optionale Anmerkungen…") }}
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-provadis">
+                            <i class="fas fa-save me-1"></i>{{ 'Aktualisieren' if edit else 'Erstellen' }}
+                        </button>
+                        <a href="javascript:history.back()" class="btn btn-outline-secondary">Abbrechen</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

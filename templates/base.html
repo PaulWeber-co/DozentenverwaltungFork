@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='img/provadis-hochschule.svg') }}" type="image/svg+xml">
+    <title>{% block title %}{{ app_name }}{% endblock %} – {{ hochschule }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+{% block body %}
+<div class="app-wrapper">
+    <div class="sidebar-overlay"></div>
+
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sidebar-brand">
+            <img src="{{ url_for('static', filename='img/provadis-hochschule-white.svg') }}" alt="Provadis Hochschule">
+            <div class="brand-text">
+                <small>Dozentenverwaltung</small>
+            </div>
+        </div>
+
+        <div class="sidebar-nav">
+            <div class="sidebar-section">Übersicht</div>
+            <a href="{{ url_for('dashboard') }}" class="sidebar-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+
+            <div class="sidebar-section">Verwaltung</div>
+            <a href="{{ url_for('dozenten_liste') }}" class="sidebar-link {% if request.endpoint and 'dozent' in request.endpoint %}active{% endif %}">
+                <i class="fas fa-chalkboard-teacher"></i> Dozenten
+            </a>
+            <a href="{{ url_for('vorlesungen_liste') }}" class="sidebar-link {% if request.endpoint and 'vorlesung' in request.endpoint %}active{% endif %}">
+                <i class="fas fa-book"></i> Vorlesungen
+            </a>
+            <a href="{{ url_for('zuweisung_neu') }}" class="sidebar-link {% if request.endpoint and 'zuweisung' in request.endpoint %}active{% endif %}">
+                <i class="fas fa-link"></i> Zuweisung erstellen
+            </a>
+
+            <div class="sidebar-section">Suche</div>
+            <a href="{{ url_for('suche') }}" class="sidebar-link {% if request.endpoint == 'suche' %}active{% endif %}">
+                <i class="fas fa-search"></i> Suche starten
+            </a>
+            <a href="{{ url_for('suche_dozent_fuer_vorlesung') }}" class="sidebar-link {% if request.endpoint == 'suche_dozent_fuer_vorlesung' %}active{% endif %}">
+                <i class="fas fa-user-check"></i> Dozent für Vorlesung
+            </a>
+            <a href="{{ url_for('suche_vorlesungen_fuer_dozent') }}" class="sidebar-link {% if request.endpoint == 'suche_vorlesungen_fuer_dozent' %}active{% endif %}">
+                <i class="fas fa-book-open"></i> Vorlesungen für Dozent
+            </a>
+
+            <div class="sidebar-section">Auswertung</div>
+            <a href="{{ url_for('reports') }}" class="sidebar-link {% if request.endpoint and 'report' in request.endpoint %}active{% endif %}">
+                <i class="fas fa-chart-bar"></i> Reports
+            </a>
+
+            <div class="sidebar-section">System</div>
+            <a href="{{ url_for('profil') }}" class="sidebar-link {% if request.endpoint == 'profil' %}active{% endif %}">
+                <i class="fas fa-user-cog"></i> Profil
+            </a>
+            <a href="{{ url_for('logout') }}" class="sidebar-link">
+                <i class="fas fa-sign-out-alt"></i> Abmelden
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="btn-sidebar-toggle" type="button">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h5>{% block page_title %}Dashboard{% endblock %}</h5>
+            </div>
+            <div class="topbar-right">
+                <span class="text-muted" style="font-size:0.85rem">
+                    <i class="fas fa-user-circle"></i> {{ current_user.display_name or current_user.username }}
+                </span>
+            </div>
+        </header>
+
+        <!-- Flash Messages -->
+        <div class="page-content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {% if category == 'success' %}<i class="fas fa-check-circle me-1"></i>{% endif %}
+                            {% if category == 'danger' %}<i class="fas fa-exclamation-triangle me-1"></i>{% endif %}
+                            {% if category == 'warning' %}<i class="fas fa-exclamation-circle me-1"></i>{% endif %}
+                            {% if category == 'info' %}<i class="fas fa-info-circle me-1"></i>{% endif %}
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </div>
+
+        <!-- Footer -->
+        <footer class="main-footer">
+            &copy; {{ now.year }} {{ hochschule }} – {{ app_name }} | Alle Rechte vorbehalten
+        </footer>
+    </div>
+</div>
+{% endblock %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>
+
+
+
+

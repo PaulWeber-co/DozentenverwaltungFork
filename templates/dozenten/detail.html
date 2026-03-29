@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% block title %}{{ dozent.full_name }}{% endblock %}
+{% block page_title %}Dozent-Details{% endblock %}
+{% block content %}
+
+<!-- Header -->
+<div class="detail-header">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+        <div>
+            <h2>{{ dozent.full_name }}</h2>
+            <div class="detail-meta">
+                <span><i class="fas fa-id-badge"></i> {{ dozent.status_display }}</span>
+                <span><i class="fas fa-envelope"></i> {{ dozent.email }}</span>
+                <span><i class="fas fa-phone"></i> {{ dozent.telefon }}</span>
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('dozent_bearbeiten', id=dozent.id) }}" class="btn btn-light btn-sm">
+                <i class="fas fa-edit me-1"></i>Bearbeiten
+            </a>
+            <a href="{{ url_for('zuweisung_neu', dozent_id=dozent.id) }}" class="btn btn-accent btn-sm">
+                <i class="fas fa-plus me-1"></i>Vorlesung zuweisen
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Info -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-4">
+        <div class="content-card">
+            <div class="card-header"><span><i class="fas fa-info-circle me-2"></i>Informationen</span></div>
+            <div class="card-body">
+                <div class="info-item">
+                    <div class="info-label">Titel</div>
+                    <div class="info-value">{{ dozent.titel or '–' }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Vorname</div>
+                    <div class="info-value">{{ dozent.vorname }}</div>
+                </div>
+                {% if dozent.zweiter_vorname %}
+                <div class="info-item">
+                    <div class="info-label">Zweiter Vorname</div>
+                    <div class="info-value">{{ dozent.zweiter_vorname }}</div>
+                </div>
+                {% endif %}
+                <div class="info-item">
+                    <div class="info-label">Nachname</div>
+                    <div class="info-value">{{ dozent.nachname }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Status</div>
+                    <div class="info-value">
+                        <span class="badge {{ 'bg-provadis' if dozent.status == 'intern' else 'bg-secondary' }}">
+                            {{ dozent.status_display }}
+                        </span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Vorlesungspräferenz</div>
+                    <div class="info-value">
+                        <span class="badge bg-info">{{ dozent.praeferenz_display }}</span>
+                        {% if dozent.master_prioritaet %}
+                            <small class="text-muted ms-1">Master: Prio {{ dozent.master_prioritaet }}</small>
+                        {% endif %}
+                        {% if dozent.bachelor_prioritaet %}
+                            <small class="text-muted ms-1">Bachelor: Prio {{ dozent.bachelor_prioritaet }}</small>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if dozent.notizen %}
+                <div class="info-item">
+                    <div class="info-label">Notizen</div>
+                    <div class="info-value">{{ dozent.notizen }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-8">
+        <div class="content-card">
+            <div class="card-header">
+                <span><i class="fas fa-book me-2"></i>Zugewiesene Vorlesungen ({{ zuweisungen|length }})</span>
+                <a href="{{ url_for('zuweisung_neu', dozent_id=dozent.id) }}" class="btn btn-sm btn-accent">
+                    <i class="fas fa-plus me-1"></i>Hinzufügen
+                </a>
+            </div>
+            <div class="card-body p-0">
+                {% if zuweisungen %}
+                <div class="table-responsive">
+                    <table class="table table-provadis mb-0">
+                        <thead>
+                            <tr>
+                                <th>Vorlesung</th>
+                                <th>Niveau</th>
+                                <th>Qualifikation</th>
+                                <th>Erfahrung</th>
+                                <th>Niveau-Präf.</th>
+                                <th style="width:120px">Aktionen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for z in zuweisungen %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('vorlesung_detail', id=z.vorlesung.id) }}" style="font-weight:500">
+                                        {{ z.vorlesung.name }}
+                                    </a>
+                                </td>
+                                <td><span class="badge {{ z.vorlesung.niveau_badge }}">{{ z.vorlesung.niveau }}</span></td>
+                                <td><span class="badge {{ z.qualifikation_badge }}">{{ z.qualifikation_display }}</span></td>
+                                <td><span class="badge {{ z.erfahrung_badge }}">{{ z.erfahrung_display }}</span></td>
+                                <td>
+                                    {% if z.niveau_praeferenz %}
+                                        <span class="badge bg-warning text-dark">
+                                            Nur {{ 'Master' if z.niveau_praeferenz == 'M' else 'Bachelor' }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">–</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-1">
+                                        <a href="{{ url_for('zuweisung_bearbeiten', id=z.id) }}" class="btn btn-sm btn-outline-secondary" title="Bearbeiten">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <form method="POST" action="{{ url_for('zuweisung_loeschen', id=z.id) }}" class="d-inline">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <input type="hidden" name="next" value="{{ url_for('dozent_detail', id=dozent.id) }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                    data-confirm="Zuweisung wirklich löschen?" title="Löschen">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state py-4">
+                    <i class="fas fa-link"></i>
+                    <h5>Keine Vorlesungen zugewiesen</h5>
+                    <p>Weisen Sie diesem Dozenten Vorlesungen zu.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Actions -->
+<div class="d-flex gap-2">
+    <a href="{{ url_for('dozenten_liste') }}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-1"></i>Zurück zur Liste
+    </a>
+    <a href="{{ url_for('suche_vorlesungen_fuer_dozent', dozent_id=dozent.id) }}" class="btn btn-outline-provadis">
+        <i class="fas fa-search me-1"></i>Vorlesungen suchen
+    </a>
+    <form method="POST" action="{{ url_for('dozent_loeschen', id=dozent.id) }}" class="ms-auto">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-outline-danger"
+                data-confirm="Dozent '{{ dozent.full_name }}' und alle Zuweisungen wirklich löschen?">
+            <i class="fas fa-trash me-1"></i>Dozent löschen
+        </button>
+    </form>
+</div>
+{% endblock %}
+

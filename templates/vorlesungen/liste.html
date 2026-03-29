@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Vorlesungen{% endblock %}
+{% block page_title %}Vorlesungen{% endblock %}
+{% block content %}
+
+<!-- Filter Bar -->
+<div class="filter-bar">
+    <form method="GET" class="row g-2 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label">Suche</label>
+            <input type="text" name="q" class="form-control" placeholder="Vorlesungsname…" value="{{ suche }}">
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-select auto-submit">
+                <option value="">Alle</option>
+                <option value="offen" {{ 'selected' if status_filter == 'offen' }}>Offen</option>
+                <option value="geschlossen" {{ 'selected' if status_filter == 'geschlossen' }}>Geschlossen</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Niveau</label>
+            <select name="niveau" class="form-select auto-submit">
+                <option value="">Alle</option>
+                <option value="Bachelor" {{ 'selected' if niveau_filter == 'Bachelor' }}>Bachelor</option>
+                <option value="Master" {{ 'selected' if niveau_filter == 'Master' }}>Master</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-provadis w-100">
+                <i class="fas fa-filter me-1"></i>Filtern
+            </button>
+        </div>
+        <div class="col-md-3 text-end">
+            <a href="{{ url_for('vorlesung_neu') }}" class="btn btn-accent">
+                <i class="fas fa-plus me-1"></i>Neue Vorlesung
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Results -->
+<div class="content-card">
+    <div class="card-header">
+        <span><i class="fas fa-book me-2"></i>{{ vorlesungen|length }} Vorlesung{{ 'en' if vorlesungen|length != 1 }}</span>
+        <div>
+            <input type="text" class="form-control form-control-sm" data-table-search="vorlesungen-table"
+                   placeholder="In Tabelle suchen…" style="width:200px">
+        </div>
+    </div>
+    <div class="card-body p-0">
+        {% if vorlesungen %}
+        <div class="table-responsive">
+            <table class="table table-provadis sortable-table mb-0" id="vorlesungen-table">
+                <thead>
+                    <tr>
+                        <th data-sort>Name</th>
+                        <th data-sort>Niveau</th>
+                        <th data-sort>Status</th>
+                        <th data-sort>Semester</th>
+                        <th>Dozenten</th>
+                        <th style="width:100px">Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for v in vorlesungen %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('vorlesung_detail', id=v.id) }}" style="font-weight:500;color:#0c2f6f">
+                                {{ v.name }}
+                            </a>
+                        </td>
+                        <td><span class="badge {{ v.niveau_badge }}">{{ v.niveau }}</span></td>
+                        <td><span class="badge {{ v.status_badge }}">{{ v.status|capitalize }}</span></td>
+                        <td style="font-size:0.85rem">{{ v.semester or '–' }}</td>
+                        <td><span class="badge bg-provadis">{{ v.dozenten|length }}</span></td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <a href="{{ url_for('vorlesung_bearbeiten', id=v.id) }}" class="btn btn-sm btn-outline-secondary"
+                                   title="Bearbeiten"><i class="fas fa-edit"></i></a>
+                                <a href="{{ url_for('vorlesung_detail', id=v.id) }}" class="btn btn-sm btn-outline-provadis"
+                                   title="Details"><i class="fas fa-eye"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-book-open"></i>
+            <h5>Keine Vorlesungen gefunden</h5>
+            <p>Passen Sie die Filter an oder legen Sie eine neue Vorlesung an.</p>
+            <a href="{{ url_for('vorlesung_neu') }}" class="btn btn-provadis mt-3">
+                <i class="fas fa-plus me-1"></i>Vorlesung anlegen
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

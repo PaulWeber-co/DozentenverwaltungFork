@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}{{ titel }}{% endblock %}
+{% block page_title %}{{ titel }}{% endblock %}
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="content-card">
+            <div class="card-header">
+                <span><i class="fas fa-chalkboard-teacher me-2"></i>{{ titel }}</span>
+            </div>
+            <div class="card-body">
+                <form method="POST" novalidate>
+                    {{ form.hidden_tag() }}
+
+                    <div class="row g-3">
+                        <!-- Titel -->
+                        <div class="col-md-4">
+                            <label class="form-label">{{ form.titel.label.text }}</label>
+                            {{ form.titel(class="form-select" + (" is-invalid" if form.titel.errors else "")) }}
+                            {% for e in form.titel.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                        </div>
+
+                        <!-- Status -->
+                        <div class="col-md-4">
+                            <label class="form-label">{{ form.status.label.text }} <span class="text-danger">*</span></label>
+                            {{ form.status(class="form-select" + (" is-invalid" if form.status.errors else "")) }}
+                            {% for e in form.status.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                        </div>
+
+                        <div class="col-md-4"></div>
+
+                        <!-- Vorname -->
+                        <div class="col-md-4">
+                            <label class="form-label">{{ form.vorname.label.text }} <span class="text-danger">*</span></label>
+                            {{ form.vorname(class="form-control" + (" is-invalid" if form.vorname.errors else ""), placeholder="Vorname") }}
+                            {% for e in form.vorname.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                        </div>
+
+                        <!-- Zweiter Vorname -->
+                        <div class="col-md-4">
+                            <label class="form-label">{{ form.zweiter_vorname.label.text }}</label>
+                            {{ form.zweiter_vorname(class="form-control", placeholder="Optional") }}
+                        </div>
+
+                        <!-- Nachname -->
+                        <div class="col-md-4">
+                            <label class="form-label">{{ form.nachname.label.text }} <span class="text-danger">*</span></label>
+                            {{ form.nachname(class="form-control" + (" is-invalid" if form.nachname.errors else ""), placeholder="Nachname") }}
+                            {% for e in form.nachname.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                        </div>
+
+                        <!-- E-Mail -->
+                        <div class="col-md-6">
+                            <label class="form-label">{{ form.email.label.text }} <span class="text-danger">*</span></label>
+                            {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), placeholder="dozent@provadis.de", type="email") }}
+                            {% for e in form.email.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                        </div>
+
+                        <!-- Telefon -->
+                        <div class="col-md-6">
+                            <label class="form-label">{{ form.telefon.label.text }} <span class="text-danger">*</span></label>
+                            {{ form.telefon(class="form-control" + (" is-invalid" if form.telefon.errors else ""), placeholder="+49 69 305-0000") }}
+                            {% for e in form.telefon.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                        </div>
+
+                        <div class="col-12"><hr class="my-2"></div>
+
+                        <!-- Präferenz -->
+                        <div class="col-md-4">
+                            <label class="form-label">{{ form.praeferenz.label.text }} <span class="text-danger">*</span></label>
+                            {{ form.praeferenz(class="form-select", id="praeferenz") }}
+                            <small class="text-muted">M = nur Master, B = nur Bachelor, A = Alle</small>
+                        </div>
+
+                        <!-- Prioritäten -->
+                        <div class="col-md-4" id="prio-fields">
+                            <label class="form-label">{{ form.master_prioritaet.label.text }}</label>
+                            {{ form.master_prioritaet(class="form-select", id="master_prioritaet") }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">{{ form.bachelor_prioritaet.label.text }}</label>
+                            {{ form.bachelor_prioritaet(class="form-select", id="bachelor_prioritaet") }}
+                        </div>
+
+                        <!-- Notizen -->
+                        <div class="col-12">
+                            <label class="form-label">{{ form.notizen.label.text }}</label>
+                            {{ form.notizen(class="form-control", rows=3, placeholder="Optionale Anmerkungen…") }}
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-provadis">
+                            <i class="fas fa-save me-1"></i>{{ 'Aktualisieren' if edit else 'Anlegen' }}
+                        </button>
+                        <a href="{{ url_for('dozent_detail', id=dozent.id) if edit else url_for('dozenten_liste') }}"
+                           class="btn btn-outline-secondary">Abbrechen</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

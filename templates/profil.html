@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Profil{% endblock %}
+{% block page_title %}Profil & Sicherheit{% endblock %}
+{% block content %}
+<div class="row g-4">
+    <!-- User Info -->
+    <div class="col-lg-6">
+        <div class="content-card">
+            <div class="card-header">
+                <span><i class="fas fa-user me-2"></i>Benutzerdaten</span>
+            </div>
+            <div class="card-body">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Benutzername</div>
+                        <div class="info-value">{{ current_user.username }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Anzeigename</div>
+                        <div class="info-value">{{ current_user.display_name or '–' }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Rolle</div>
+                        <div class="info-value">
+                            <span class="badge bg-provadis">{{ current_user.role|capitalize }}</span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Erstellt am</div>
+                        <div class="info-value">{{ current_user.created_at.strftime('%d.%m.%Y') }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2FA -->
+    <div class="col-lg-6">
+        <div class="content-card">
+            <div class="card-header">
+                <span><i class="fas fa-shield-alt me-2"></i>Zwei-Faktor-Authentifizierung</span>
+            </div>
+            <div class="card-body text-center py-4">
+                {% if current_user.is_2fa_enabled %}
+                    <i class="fas fa-check-circle text-success" style="font-size:2.5rem"></i>
+                    <h6 class="mt-2 text-success">2FA ist aktiviert</h6>
+                    <p class="text-muted" style="font-size:0.85rem">Ihr Konto ist durch Zwei-Faktor-Authentifizierung geschützt.</p>
+                    <form method="POST" action="{{ url_for('disable_2fa') }}" class="mt-2">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-outline-danger btn-sm"
+                                data-confirm="Möchten Sie 2FA wirklich deaktivieren?">
+                            <i class="fas fa-times me-1"></i>2FA deaktivieren
+                        </button>
+                    </form>
+                {% else %}
+                    <i class="fas fa-shield-alt text-muted" style="font-size:2.5rem;opacity:0.3"></i>
+                    <h6 class="mt-2">2FA ist nicht aktiviert</h6>
+                    <p class="text-muted" style="font-size:0.85rem">Schützen Sie Ihr Konto mit einer Authenticator-App.</p>
+                    <a href="{{ url_for('setup_2fa') }}" class="btn btn-provadis btn-sm mt-1">
+                        <i class="fas fa-plus me-1"></i>2FA einrichten
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Password -->
+    <div class="col-lg-6">
+        <div class="content-card">
+            <div class="card-header">
+                <span><i class="fas fa-key me-2"></i>Passwort ändern</span>
+            </div>
+            <div class="card-body">
+                <form method="POST" novalidate>
+                    {{ pw_form.hidden_tag() }}
+                    <div class="mb-3">
+                        <label class="form-label">{{ pw_form.current_password.label.text }}</label>
+                        {{ pw_form.current_password(class="form-control" + (" is-invalid" if pw_form.current_password.errors else "")) }}
+                        {% for e in pw_form.current_password.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">{{ pw_form.new_password.label.text }}</label>
+                        {{ pw_form.new_password(class="form-control" + (" is-invalid" if pw_form.new_password.errors else "")) }}
+                        {% for e in pw_form.new_password.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">{{ pw_form.confirm_password.label.text }}</label>
+                        {{ pw_form.confirm_password(class="form-control" + (" is-invalid" if pw_form.confirm_password.errors else "")) }}
+                        {% for e in pw_form.confirm_password.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                    </div>
+                    <button type="submit" class="btn btn-provadis">
+                        <i class="fas fa-save me-1"></i>Passwort ändern
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

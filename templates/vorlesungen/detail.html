@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}{{ vorlesung.name }}{% endblock %}
+{% block page_title %}Vorlesung-Details{% endblock %}
+{% block content %}
+
+<!-- Header -->
+<div class="detail-header">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+        <div>
+            <h2>{{ vorlesung.name }}</h2>
+            <div class="detail-meta">
+                <span><span class="badge {{ vorlesung.niveau_badge }} me-1">{{ vorlesung.niveau }}</span></span>
+                <span><span class="badge {{ vorlesung.status_badge }} me-1">{{ vorlesung.status|capitalize }}</span></span>
+                {% if vorlesung.semester %}
+                    <span><i class="fas fa-calendar"></i> {{ vorlesung.semester }}</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('vorlesung_bearbeiten', id=vorlesung.id) }}" class="btn btn-light btn-sm">
+                <i class="fas fa-edit me-1"></i>Bearbeiten
+            </a>
+            <a href="{{ url_for('zuweisung_neu', vorlesung_id=vorlesung.id) }}" class="btn btn-accent btn-sm">
+                <i class="fas fa-plus me-1"></i>Dozent zuweisen
+            </a>
+            <a href="{{ url_for('suche_dozent_fuer_vorlesung', vorlesung_id=vorlesung.id) }}" class="btn btn-light btn-sm">
+                <i class="fas fa-search me-1"></i>Dozent suchen
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Dozenten -->
+<div class="content-card">
+    <div class="card-header">
+        <span><i class="fas fa-chalkboard-teacher me-2"></i>Zugewiesene Dozenten ({{ zuweisungen|length }})</span>
+        <a href="{{ url_for('zuweisung_neu', vorlesung_id=vorlesung.id) }}" class="btn btn-sm btn-accent">
+            <i class="fas fa-plus me-1"></i>Hinzufügen
+        </a>
+    </div>
+    <div class="card-body p-0">
+        {% if zuweisungen %}
+        <div class="table-responsive">
+            <table class="table table-provadis mb-0">
+                <thead>
+                    <tr>
+                        <th>Dozent</th>
+                        <th>Status</th>
+                        <th>Qualifikation</th>
+                        <th>Erfahrung</th>
+                        <th>Niveau-Präf.</th>
+                        <th>Notizen</th>
+                        <th style="width:120px">Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for z in zuweisungen %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('dozent_detail', id=z.dozent.id) }}" style="font-weight:500">
+                                {{ z.dozent.full_name }}
+                            </a>
+                        </td>
+                        <td>
+                            <span class="badge {{ 'bg-provadis' if z.dozent.status == 'intern' else 'bg-secondary' }}">
+                                {{ z.dozent.status_display }}
+                            </span>
+                        </td>
+                        <td><span class="badge {{ z.qualifikation_badge }}">{{ z.qualifikation_display }}</span></td>
+                        <td><span class="badge {{ z.erfahrung_badge }}">{{ z.erfahrung_display }}</span></td>
+                        <td>
+                            {% if z.niveau_praeferenz %}
+                                <span class="badge bg-warning text-dark">
+                                    Nur {{ 'Master' if z.niveau_praeferenz == 'M' else 'Bachelor' }}
+                                </span>
+                            {% else %}
+                                <span class="text-muted">–</span>
+                            {% endif %}
+                        </td>
+                        <td style="font-size:0.8rem;max-width:150px" class="text-truncate">{{ z.notizen or '–' }}</td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <a href="{{ url_for('zuweisung_bearbeiten', id=z.id) }}" class="btn btn-sm btn-outline-secondary" title="Bearbeiten">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form method="POST" action="{{ url_for('zuweisung_loeschen', id=z.id) }}" class="d-inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <input type="hidden" name="next" value="{{ url_for('vorlesung_detail', id=vorlesung.id) }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger"
+                                            data-confirm="Zuweisung wirklich löschen?" title="Löschen">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state py-4">
+            <i class="fas fa-user-slash"></i>
+            <h5>Keine Dozenten zugewiesen</h5>
+            <p>Weisen Sie dieser Vorlesung Dozenten zu oder suchen Sie passende Dozenten.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Actions -->
+<div class="d-flex gap-2 mt-4">
+    <a href="{{ url_for('vorlesungen_liste') }}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-1"></i>Zurück zur Liste
+    </a>
+    <form method="POST" action="{{ url_for('vorlesung_loeschen', id=vorlesung.id) }}" class="ms-auto">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-outline-danger"
+                data-confirm="Vorlesung '{{ vorlesung.name }}' und alle Zuweisungen wirklich löschen?">
+            <i class="fas fa-trash me-1"></i>Vorlesung löschen
+        </button>
+    </form>
+</div>
+{% endblock %}
+
