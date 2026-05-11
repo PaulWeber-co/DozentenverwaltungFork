@@ -6,48 +6,56 @@
 <!-- Statistics -->
 <div class="row g-3 mb-4">
     <div class="col-sm-6 col-xl-3">
-        <div class="card stat-card">
-            <div class="card-body d-flex align-items-center gap-3">
-                <div class="stat-icon icon-dozenten"><i class="fas fa-chalkboard-teacher"></i></div>
-                <div>
-                    <div class="stat-value">{{ dozenten_count }}</div>
-                    <div class="stat-label">Dozenten</div>
+        <a href="{{ url_for('dozenten_liste') }}" class="text-decoration-none text-reset d-block">
+            <div class="card stat-card">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="stat-icon icon-dozenten"><i class="fas fa-chalkboard-teacher"></i></div>
+                    <div>
+                        <div class="stat-value">{{ dozenten_count }}</div>
+                        <div class="stat-label">Dozenten</div>
+                    </div>
                 </div>
             </div>
-        </div>
+        </a>
     </div>
     <div class="col-sm-6 col-xl-3">
-        <div class="card stat-card">
-            <div class="card-body d-flex align-items-center gap-3">
-                <div class="stat-icon icon-vorlesungen"><i class="fas fa-book"></i></div>
-                <div>
-                    <div class="stat-value">{{ vorlesungen_count }}</div>
-                    <div class="stat-label">Vorlesungen</div>
+        <a href="{{ url_for('vorlesungen_liste') }}" class="text-decoration-none text-reset d-block">
+            <div class="card stat-card">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="stat-icon icon-vorlesungen"><i class="fas fa-book"></i></div>
+                    <div>
+                        <div class="stat-value">{{ vorlesungen_count }}</div>
+                        <div class="stat-label">Vorlesungen</div>
+                    </div>
                 </div>
             </div>
-        </div>
+        </a>
     </div>
     <div class="col-sm-6 col-xl-3">
-        <div class="card stat-card">
-            <div class="card-body d-flex align-items-center gap-3">
-                <div class="stat-icon icon-zuweisungen"><i class="fas fa-link"></i></div>
-                <div>
-                    <div class="stat-value">{{ zuweisungen_count }}</div>
-                    <div class="stat-label">Zuweisungen</div>
+        <a href="{{ url_for('zuweisungen_liste') }}" class="text-decoration-none text-reset d-block">
+            <div class="card stat-card">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="stat-icon icon-zuweisungen"><i class="fas fa-link"></i></div>
+                    <div>
+                        <div class="stat-value">{{ zuweisungen_count }}</div>
+                        <div class="stat-label">Zuweisungen</div>
+                    </div>
                 </div>
             </div>
-        </div>
+        </a>
     </div>
     <div class="col-sm-6 col-xl-3">
-        <div class="card stat-card">
-            <div class="card-body d-flex align-items-center gap-3">
-                <div class="stat-icon icon-offen"><i class="fas fa-exclamation-circle"></i></div>
-                <div>
-                    <div class="stat-value">{{ vorlesungen_ohne_dozent }}</div>
-                    <div class="stat-label">Ohne Dozent</div>
+        <a href="{{ url_for('report_anzeigen', report_id=3) }}" class="text-decoration-none">
+            <div class="card stat-card">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="stat-icon icon-offen"><i class="fas fa-exclamation-circle"></i></div>
+                    <div>
+                        <div class="stat-value">{{ vorlesungen_ohne_dozent }}</div>
+                        <div class="stat-label">Ohne Dozent</div>
+                    </div>
                 </div>
             </div>
-        </div>
+        </a>
     </div>
 </div>
 
@@ -57,15 +65,19 @@
         <div class="content-card">
             <div class="card-body text-center py-3">
                 <div class="d-flex justify-content-center gap-4">
-                    <div>
-                        <div style="font-size:1.5rem;font-weight:700;color:#0c2f6f">{{ interne }}</div>
-                        <small class="text-muted">Intern</small>
-                    </div>
+                    <a href="{{ url_for('dozenten_liste', status='intern') }}" class="text-decoration-none text-reset d-block">
+                        <div>
+                            <div style="font-size:1.5rem;font-weight:700;color:#0c2f6f">{{ interne }}</div>
+                            <small class="text-muted">Intern</small>
+                        </div>
+                    </a>
                     <div style="width:1px;background:#eee"></div>
-                    <div>
-                        <div style="font-size:1.5rem;font-weight:700;color:#0c2f6f">{{ externe }}</div>
-                        <small class="text-muted">Extern</small>
-                    </div>
+                    <a href="{{ url_for('dozenten_liste', status='extern') }}" class="text-decoration-none text-reset d-block">
+                        <div>
+                            <div style="font-size:1.5rem;font-weight:700;color:#0c2f6f">{{ externe }}</div>
+                            <small class="text-muted">Extern</small>
+                        </div>
+                    </a>
                 </div>
             </div>
         </div>
@@ -74,15 +86,19 @@
         <div class="content-card">
             <div class="card-body text-center py-3">
                 <div class="d-flex justify-content-center gap-4">
-                    <div>
-                        <div style="font-size:1.5rem;font-weight:700;color:#0c2f6f">{{ bachelor_count }}</div>
-                        <small class="text-muted">Bachelor</small>
-                    </div>
+                    <a href="{{ url_for('vorlesungen_liste', niveau='Bachelor') }}" class="text-decoration-none text-reset d-block">
+                        <div>
+                            <div style="font-size:1.5rem;font-weight:700;color:#0c2f6f">{{ bachelor_count }}</div>
+                            <small class="text-muted">Bachelor</small>
+                        </div>
+                    </a>
                     <div style="width:1px;background:#eee"></div>
-                    <div>
-                        <div style="font-size:1.5rem;font-weight:700;color:#a7358b">{{ master_count }}</div>
-                        <small class="text-muted">Master</small>
-                    </div>
+                    <a href="{{ url_for('vorlesungen_liste', niveau='Master') }}" class="text-decoration-none text-reset d-block">
+                        <div>
+                            <div style="font-size:1.5rem;font-weight:700;color:#a7358b">{{ master_count }}</div>
+                            <small class="text-muted">Master</small>
+                        </div>
+                    </a>
                 </div>
             </div>
         </div>

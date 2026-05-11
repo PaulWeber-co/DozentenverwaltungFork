@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Archiv - Dozenten{% endblock %}
+{% block page_title %}Archiv - Dozenten{% endblock %}
+{% block content %}
+
+<div class="content-card">
+    <div class="card-header">
+        <span><i class="fas fa-archive me-2"></i>Archivierte Dozenten</span>
+    </div>
+    <div class="card-body p-0">
+        {% if dozenten %}
+        <div class="table-responsive">
+            <table class="table table-provadis mb-0">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th>E-Mail</th>
+                        <th>Vorlesungen</th>
+                        <th style="width:180px">Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in dozenten %}
+                    <tr>
+                        <td>{{ d.full_name }}</td>
+                        <td>{{ d.status_display }}</td>
+                        <td>{{ d.email }}</td>
+                        <td><span class="badge bg-provadis">{{ d.vorlesungen|length }}</span></td>
+                        <td>
+                            <form method="POST" action="{{ url_for('archiv_dozent_restore', id=d.id) }}" style="display:inline-block">
+                                <button class="btn btn-sm btn-outline-success">Wiederherstellen</button>
+                            </form>
+                            <form method="POST" action="{{ url_for('archiv_dozent_permanent_delete', id=d.id) }}" style="display:inline-block" onsubmit="return confirm('Endgültig löschen? Dies kann nicht rückgängig gemacht werden.');">
+                                <button class="btn btn-sm btn-danger">Löschen</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state py-4">
+            <i class="fas fa-archive"></i>
+            <h5>Keine archivierten Dozenten</h5>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+

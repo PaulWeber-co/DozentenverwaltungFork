@@ -116,8 +116,8 @@
     <form method="POST" action="{{ url_for('vorlesung_loeschen', id=vorlesung.id) }}" class="ms-auto">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <button type="submit" class="btn btn-outline-danger"
-                data-confirm="Vorlesung '{{ vorlesung.name }}' und alle Zuweisungen wirklich löschen?">
-            <i class="fas fa-trash me-1"></i>Vorlesung löschen
+                data-confirm="Möchten Sie die Vorlesung '{{ vorlesung.name }}' ins Archiv verschieben?">
+            <i class="fas fa-archive me-1"></i>In Archiv verschieben
         </button>
     </form>
 </div>

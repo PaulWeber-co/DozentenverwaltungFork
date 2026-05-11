@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}Zuweisungen{% endblock %}
+{% block page_title %}Zuweisungen{% endblock %}
+{% block content %}
+
+<div class="filter-bar">
+    <form method="GET" class="row g-2 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label">Dozent</label>
+            <select name="dozent_id" class="form-select auto-submit">
+                <option value="">Alle</option>
+                {% for d in dozenten %}
+                    <option value="{{ d.id }}" {{ 'selected' if dozent_filter == d.id }}>{{ d.full_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Vorlesung</label>
+            <select name="vorlesung_id" class="form-select auto-submit">
+                <option value="">Alle</option>
+                {% for v in vorlesungen %}
+                    <option value="{{ v.id }}" {{ 'selected' if vorlesung_filter == v.id }}>{{ v.name }} ({{ v.niveau }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Qualifikation</label>
+            <select name="qualifikation" class="form-select auto-submit">
+                <option value="">Alle</option>
+                <option value="S" {{ 'selected' if qualifikation_filter == 'S' }}>Sofort</option>
+                <option value="4" {{ 'selected' if qualifikation_filter == '4' }}>4 Wochen</option>
+                <option value="M" {{ 'selected' if qualifikation_filter == 'M' }}>Mehr als 4 Wochen</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Erfahrung</label>
+            <select name="erfahrung" class="form-select auto-submit">
+                <option value="">Alle</option>
+                <option value="P" {{ 'selected' if erfahrung_filter == 'P' }}>Provadis</option>
+                <option value="A" {{ 'selected' if erfahrung_filter == 'A' }}>Andere Hochschule</option>
+                <option value="N" {{ 'selected' if erfahrung_filter == 'N' }}>Keine</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-provadis w-100">
+                <i class="fas fa-filter me-1"></i>Filtern
+            </button>
+        </div>
+    </form>
+</div>
+
+<div class="content-card">
+    <div class="card-header">
+        <span><i class="fas fa-link me-2"></i>{{ zuweisungen|length }} Zuweisungen</span>
+        <a href="{{ url_for('zuweisung_neu') }}" class="btn btn-sm btn-accent">
+            <i class="fas fa-plus me-1"></i>Neue Zuweisung
+        </a>
+    </div>
+    <div class="card-body p-0">
+        {% if zuweisungen %}
+        <div class="table-responsive">
+            <table class="table table-provadis sortable-table mb-0">
+                <thead>
+                    <tr>
+                        <th data-sort>Dozent</th>
+                        <th data-sort>Vorlesung</th>
+                        <th data-sort>Niveau</th>
+                        <th data-sort>Qualifikation</th>
+                        <th data-sort>Erfahrung</th>
+                        <th>Niveau-Präf.</th>
+                        <th style="width:120px">Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for z in zuweisungen %}
+                    <tr>
+                        <td><a href="{{ url_for('dozent_detail', id=z.dozent.id) }}">{{ z.dozent.full_name }}</a></td>
+                        <td><a href="{{ url_for('vorlesung_detail', id=z.vorlesung.id) }}">{{ z.vorlesung.name }}</a></td>
+                        <td><span class="badge {{ z.vorlesung.niveau_badge }}">{{ z.vorlesung.niveau }}</span></td>
+                        <td><span class="badge {{ z.qualifikation_badge }}">{{ z.qualifikation_display }}</span></td>
+                        <td><span class="badge {{ z.erfahrung_badge }}">{{ z.erfahrung_display }}</span></td>
+                        <td>
+                            {% if z.niveau_praeferenz %}
+                                <span class="badge bg-warning text-dark">Nur {{ 'Master' if z.niveau_praeferenz == 'M' else 'Bachelor' }}</span>
+                            {% else %}
+                                <span class="text-muted">–</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('zuweisung_bearbeiten', id=z.id) }}" class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state py-4">
+            <i class="fas fa-link"></i>
+            <h5>Keine Zuweisungen gefunden</h5>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+

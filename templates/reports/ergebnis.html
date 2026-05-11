@@ -46,8 +46,11 @@
                     <tr>
                         <th style="width:40px">#</th>
                         {% for h in headers %}
-                            <th data-sort>{{ h }}</th>
-                        {% endfor %}
+                                    <th data-sort>{{ h }}</th>
+                                {% endfor %}
+                                {% if report_id == 3 %}
+                                    <th>Aktionen</th>
+                                {% endif %}
                     </tr>
                 </thead>
                 <tbody>
@@ -71,6 +74,13 @@
                                 {% endif %}
                             </td>
                         {% endfor %}
+                        {% if report_id == 3 %}
+                            <td>
+                                <a href="{{ url_for('suche_dozent_fuer_vorlesung') }}?vorlesung_id={{ row.id }}" class="btn btn-sm btn-provadis">
+                                    <i class="fas fa-search me-1"></i>Dozent suchen
+                                </a>
+                            </td>
+                        {% endif %}
                     </tr>
                     {% endfor %}
                 </tbody>

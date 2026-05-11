@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='img/provadis.png') }}" type="image/png">
     <link rel="icon" href="{{ url_for('static', filename='img/provadis-hochschule.svg') }}" type="image/svg+xml">
     <title>{% block title %}{{ app_name }}{% endblock %} – {{ hochschule }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -18,7 +19,10 @@
     <!-- Sidebar -->
     <nav class="sidebar">
         <div class="sidebar-brand">
-            <img src="{{ url_for('static', filename='img/provadis-hochschule-white.svg') }}" alt="Provadis Hochschule">
+            {% set sidebar_logo_fallback = url_for('static', filename='img/provadis-hochschule-white.svg') %}
+            <img src="{{ url_for('static', filename='img/provadis-logo.png') }}"
+                 onerror="this.onerror=null;this.src='{{ sidebar_logo_fallback }}';"
+                 alt="Provadis Hochschule">
             <div class="brand-text">
                 <small>Dozentenverwaltung</small>
             </div>
@@ -36,6 +40,9 @@
             </a>
             <a href="{{ url_for('vorlesungen_liste') }}" class="sidebar-link {% if request.endpoint and 'vorlesung' in request.endpoint %}active{% endif %}">
                 <i class="fas fa-book"></i> Vorlesungen
+            </a>
+            <a href="{{ url_for('zuweisungen_liste') }}" class="sidebar-link {% if request.endpoint == 'zuweisungen_liste' %}active{% endif %}">
+                <i class="fas fa-link"></i> Zuweisungen
             </a>
             <a href="{{ url_for('zuweisung_neu') }}" class="sidebar-link {% if request.endpoint and 'zuweisung' in request.endpoint %}active{% endif %}">
                 <i class="fas fa-link"></i> Zuweisung erstellen
@@ -57,6 +64,14 @@
                 <i class="fas fa-chart-bar"></i> Reports
             </a>
 
+            <div class="sidebar-section">Archiv</div>
+            <a href="{{ url_for('archiv_dozenten') }}" class="sidebar-link {% if request.endpoint and 'archiv_dozenten' in request.endpoint %}active{% endif %}">
+                <i class="fas fa-archive"></i> Archiv - Dozenten
+            </a>
+            <a href="{{ url_for('archiv_vorlesungen') }}" class="sidebar-link {% if request.endpoint and 'archiv_vorlesungen' in request.endpoint %}active{% endif %}">
+                <i class="fas fa-archive"></i> Archiv - Vorlesungen
+            </a>
+
             <div class="sidebar-section">System</div>
             <a href="{{ url_for('profil') }}" class="sidebar-link {% if request.endpoint == 'profil' %}active{% endif %}">
                 <i class="fas fa-user-cog"></i> Profil
@@ -75,6 +90,10 @@
                 <button class="btn-sidebar-toggle" type="button">
                     <i class="fas fa-bars"></i>
                 </button>
+                <img src="{{ url_for('static', filename='img/provadis.png') }}"
+                     onerror="this.onerror=null;this.style.display='none';"
+                     alt="Provadis Icon"
+                     class="topbar-brand-icon">
                 <h5>{% block page_title %}Dashboard{% endblock %}</h5>
             </div>
             <div class="topbar-right">

@@ -42,6 +42,22 @@ def create_app(config_class=Config):
     def load_user(user_id):
         return db.session.get(User, int(user_id))
 
+    def ensure_default_users():
+        """Create demo users for local/test setup if no user exists yet."""
+        if User.query.count() > 0:
+            return
+
+        admin = User(username='admin', display_name='Administrator', role='admin')
+        admin.set_password('Provadis2026!')
+
+        viewer = User(username='viewer', display_name='Betrachter (Test)', role='viewer')
+        viewer.set_password('Viewer2026!')
+
+        db.session.add(admin)
+        db.session.add(viewer)
+        db.session.commit()
+        app.logger.warning('Keine Benutzer gefunden. Demo-Accounts admin/viewer wurden automatisch angelegt.')
+
     # ──────────────────────── Context Processors ────────────────────────
 
     @app.context_processor
@@ -60,7 +76,8 @@ def create_app(config_class=Config):
             return redirect(url_for('dashboard'))
         form = LoginForm()
         if form.validate_on_submit():
-            user = User.query.filter_by(username=form.username.data).first()
+            username = (form.username.data or '').strip()
+            user = User.query.filter(db.func.lower(User.username) == username.lower()).first()
             if user and user.check_password(form.password.data):
                 if user.is_2fa_enabled:
                     session['2fa_user_id'] = user.id
@@ -153,17 +170,18 @@ def create_app(config_class=Config):
     @app.route('/')
     @login_required
     def dashboard():
-        dozenten_count = Dozent.query.count()
-        vorlesungen_count = Vorlesung.query.count()
-        offene_vorlesungen = Vorlesung.query.filter_by(status='offen').count()
+        # Exclude archived items from dashboard counts
+        dozenten_count = Dozent.query.filter_by(is_archived=False).count()
+        vorlesungen_count = Vorlesung.query.filter_by(is_archived=False).count()
+        offene_vorlesungen = Vorlesung.query.filter_by(status='offen', is_archived=False).count()
         zuweisungen_count = DozentVorlesung.query.count()
-        interne = Dozent.query.filter_by(status='intern').count()
-        externe = Dozent.query.filter_by(status='extern').count()
-        bachelor_count = Vorlesung.query.filter_by(niveau='Bachelor').count()
-        master_count = Vorlesung.query.filter_by(niveau='Master').count()
+        interne = Dozent.query.filter_by(status='intern', is_archived=False).count()
+        externe = Dozent.query.filter_by(status='extern', is_archived=False).count()
+        bachelor_count = Vorlesung.query.filter_by(niveau='Bachelor', is_archived=False).count()
+        master_count = Vorlesung.query.filter_by(niveau='Master', is_archived=False).count()
 
-        # Vorlesungen ohne Dozent
-        vorlesungen_ohne_dozent = Vorlesung.query.filter(~Vorlesung.dozenten.any()).count()
+        # Vorlesungen ohne Dozent (nur nicht-archivierte Vorlesungen)
+        vorlesungen_ohne_dozent = Vorlesung.query.filter_by(is_archived=False).filter(~Vorlesung.dozenten.any()).count()
 
         # Letzte 5 Dozenten
         letzte_dozenten = Dozent.query.order_by(Dozent.erstellt_am.desc()).limit(5).all()
@@ -190,7 +208,7 @@ def create_app(config_class=Config):
         praeferenz_filter = request.args.get('praeferenz', '')
         suche = request.args.get('q', '')
 
-        query = Dozent.query
+        query = Dozent.query.filter_by(is_archived=False)
         if status_filter:
             query = query.filter_by(status=status_filter)
         if praeferenz_filter:
@@ -277,10 +295,9 @@ def create_app(config_class=Config):
     @login_required
     def dozent_loeschen(id):
         dozent = db.session.get(Dozent, id) or abort(404)
-        name = dozent.full_name
-        db.session.delete(dozent)
+        dozent.is_archived = True
         db.session.commit()
-        flash(f'Dozent {name} wurde gelöscht.', 'success')
+        flash(f'Dozent {dozent.full_name} wurde ins Archiv verschoben.', 'info')
         return redirect(url_for('dozenten_liste'))
 
     # ──────────────────────── Vorlesungen ────────────────────────
@@ -292,7 +309,7 @@ def create_app(config_class=Config):
         niveau_filter = request.args.get('niveau', '')
         suche = request.args.get('q', '')
 
-        query = Vorlesung.query
+        query = Vorlesung.query.filter_by(is_archived=False)
         if status_filter:
             query = query.filter_by(status=status_filter)
         if niveau_filter:
@@ -355,11 +372,62 @@ def create_app(config_class=Config):
     @login_required
     def vorlesung_loeschen(id):
         vorlesung = db.session.get(Vorlesung, id) or abort(404)
+        vorlesung.is_archived = True
+        db.session.commit()
+        flash(f'Vorlesung "{vorlesung.name}" wurde ins Archiv verschoben.', 'info')
+        return redirect(url_for('vorlesungen_liste'))
+
+    # ──────────────────────── Archiv (soft-deleted items) ────────────────────────
+
+    @app.route('/archiv/dozenten')
+    @login_required
+    def archiv_dozenten():
+        dozenten = Dozent.query.filter_by(is_archived=True).order_by(Dozent.aktualisiert_am.desc()).all()
+        return render_template('archiv/dozenten.html', dozenten=dozenten)
+
+    @app.route('/archiv/dozenten/<int:id>/restore', methods=['POST'])
+    @login_required
+    def archiv_dozent_restore(id):
+        dozent = db.session.get(Dozent, id) or abort(404)
+        dozent.is_archived = False
+        db.session.commit()
+        flash(f'Dozent {dozent.full_name} wurde wiederhergestellt.', 'success')
+        return redirect(url_for('archiv_dozenten'))
+
+    @app.route('/archiv/dozenten/<int:id>/permanent_delete', methods=['POST'])
+    @login_required
+    def archiv_dozent_permanent_delete(id):
+        dozent = db.session.get(Dozent, id) or abort(404)
+        name = dozent.full_name
+        db.session.delete(dozent)
+        db.session.commit()
+        flash(f'Dozent {name} wurde endgültig gelöscht.', 'success')
+        return redirect(url_for('archiv_dozenten'))
+
+    @app.route('/archiv/vorlesungen')
+    @login_required
+    def archiv_vorlesungen():
+        vorlesungen = Vorlesung.query.filter_by(is_archived=True).order_by(Vorlesung.aktualisiert_am.desc()).all()
+        return render_template('archiv/vorlesungen.html', vorlesungen=vorlesungen)
+
+    @app.route('/archiv/vorlesungen/<int:id>/restore', methods=['POST'])
+    @login_required
+    def archiv_vorlesung_restore(id):
+        vorlesung = db.session.get(Vorlesung, id) or abort(404)
+        vorlesung.is_archived = False
+        db.session.commit()
+        flash(f'Vorlesung "{vorlesung.name}" wurde wiederhergestellt.', 'success')
+        return redirect(url_for('archiv_vorlesungen'))
+
+    @app.route('/archiv/vorlesungen/<int:id>/permanent_delete', methods=['POST'])
+    @login_required
+    def archiv_vorlesung_permanent_delete(id):
+        vorlesung = db.session.get(Vorlesung, id) or abort(404)
         name = vorlesung.name
         db.session.delete(vorlesung)
         db.session.commit()
-        flash(f'Vorlesung "{name}" wurde gelöscht.', 'success')
-        return redirect(url_for('vorlesungen_liste'))
+        flash(f'Vorlesung "{name}" wurde endgültig gelöscht.', 'success')
+        return redirect(url_for('archiv_vorlesungen'))
 
     # ──────────────────────── Zuweisungen ────────────────────────
 
@@ -436,6 +504,43 @@ def create_app(config_class=Config):
         flash('Zuweisung wurde gelöscht.', 'success')
         next_url = request.form.get('next') or url_for('dozent_detail', id=dozent_id)
         return redirect(next_url)
+
+    @app.route('/zuweisungen')
+    @login_required
+    def zuweisungen_liste():
+        dozent_filter = request.args.get('dozent_id', type=int)
+        vorlesung_filter = request.args.get('vorlesung_id', type=int)
+        qualifikation_filter = request.args.get('qualifikation', '')
+        erfahrung_filter = request.args.get('erfahrung', '')
+
+        query = DozentVorlesung.query.join(Dozent).join(Vorlesung).filter(
+            Dozent.is_archived.is_(False),
+            Vorlesung.is_archived.is_(False)
+        )
+
+        if dozent_filter:
+            query = query.filter(DozentVorlesung.dozent_id == dozent_filter)
+        if vorlesung_filter:
+            query = query.filter(DozentVorlesung.vorlesung_id == vorlesung_filter)
+        if qualifikation_filter:
+            query = query.filter(DozentVorlesung.qualifikation == qualifikation_filter)
+        if erfahrung_filter:
+            query = query.filter(DozentVorlesung.erfahrung == erfahrung_filter)
+
+        zuweisungen = query.order_by(Dozent.nachname, Dozent.vorname, Vorlesung.name).all()
+        dozenten = Dozent.query.filter_by(is_archived=False).order_by(Dozent.nachname, Dozent.vorname).all()
+        vorlesungen = Vorlesung.query.filter_by(is_archived=False).order_by(Vorlesung.name).all()
+
+        return render_template(
+            'zuweisungen/liste.html',
+            zuweisungen=zuweisungen,
+            dozenten=dozenten,
+            vorlesungen=vorlesungen,
+            dozent_filter=dozent_filter,
+            vorlesung_filter=vorlesung_filter,
+            qualifikation_filter=qualifikation_filter,
+            erfahrung_filter=erfahrung_filter
+        )
 
     # ──────────────────────── Suche ────────────────────────
 
@@ -598,11 +703,12 @@ def create_app(config_class=Config):
             return headers, keys, sorted(rows, key=lambda r: (r['dozent'], r['vorlesung']))
 
         elif report_id == 3:
-            # Vorlesungen ohne Dozent
-            vorlesungen = Vorlesung.query.filter(~Vorlesung.dozenten.any()).all()
+            # Vorlesungen ohne Dozent (nur nicht-archivierte)
+            vorlesungen = Vorlesung.query.filter_by(is_archived=False).filter(~Vorlesung.dozenten.any()).all()
             rows = []
             for v in vorlesungen:
                 rows.append({
+                    'id': v.id,
                     'vorlesung': v.name,
                     'niveau': v.niveau,
                     'status': 'Offen' if v.status == 'offen' else 'Geschlossen',
@@ -752,6 +858,7 @@ def create_app(config_class=Config):
 
     with app.app_context():
         db.create_all()
+        ensure_default_users()
 
     return app
 

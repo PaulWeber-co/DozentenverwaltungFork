@@ -19,7 +19,8 @@ class User(UserMixin, db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
+        # Use PBKDF2 explicitly for broad Python/OpenSSL compatibility.
+        self.password_hash = generate_password_hash(password, method='pbkdf2:sha256')
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
@@ -42,6 +43,7 @@ class Dozent(db.Model):
     master_prioritaet = db.Column(db.Integer, nullable=True)
     bachelor_prioritaet = db.Column(db.Integer, nullable=True)
     notizen = db.Column(db.Text, nullable=True, default='')
+    is_archived = db.Column(db.Boolean, default=False)
     erstellt_am = db.Column(db.DateTime, default=datetime.utcnow)
     aktualisiert_am = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -76,6 +78,7 @@ class Vorlesung(db.Model):
     status = db.Column(db.String(15), nullable=False, default='offen')  # offen oder geschlossen
     niveau = db.Column(db.String(10), nullable=False, default='Bachelor')  # Bachelor oder Master
     semester = db.Column(db.String(20), nullable=True, default='')
+    is_archived = db.Column(db.Boolean, default=False)
     erstellt_am = db.Column(db.DateTime, default=datetime.utcnow)
     aktualisiert_am = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
